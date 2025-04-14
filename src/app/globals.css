@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply *:border-zinc-300 dark:border-zinc-700;
+  }
+
+  body {
+    @apply bg-zinc-50 dark:bg-zinc-900 relative z-50 w-full min-h-screen text-slate-900 dark:text-slate-100;
+  }
+
+  main {
+    @apply relative z-40
+  }
+  
+  section {
+    @apply relative pt-8
+  }
+
+  h1 {
+    @apply font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl;
+  }
+  
+  h2 {
+    @apply font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  h3 {
+    @apply font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl ;
+  }
+  
+  h4 {
+    @apply font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl ;
+  }
+  
+  h5 {
+    @apply font-bold text-base sm:text-lg md:text-xl lg:text-2xl;
+  }
+  
+  h6 {
+    @apply font-bold text-sm sm:text-base md:text-lg lg:text-xl ;
+  }
+  
+  p {
+    @apply text-pretty tracking-wide font-medium text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400;
+  }
+
+  span {
+    @apply text-pretty font-semibold
+  }
+
+}
+
+
+@layer components {
+
+  /* ... */
+
+}
+
+
+::-webkit-scrollbar {
+  display: none;
+}
