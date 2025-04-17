@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ModalLeave } from "@/components/fragments/modals/ModalLeave";
@@ -35,7 +36,7 @@ type Props = {
   roleUser: string;
 };
 
-export const Actions = ({ checkIn, checkOut, leave, roleUser }: Props) => {
+export const Actions = ({ checkIn: initialCheckIn, checkOut: initialCheckOut, leave, roleUser }: Props) => {
   const { getLocation } = useGeolocation();
   const { In, loadIn } = useCheckIn();
   const { Out, loadOut } = useCheckOut();
@@ -46,12 +47,27 @@ export const Actions = ({ checkIn, checkOut, leave, roleUser }: Props) => {
   const [qrScannerOpen, setQrScannerOpen] = useState(false);
   const [scanMode, setScanMode] = useState<"qrin" | "qrout" | null>(null);
   const scannerRef = useRef<HTMLDivElement>(null);
+  const [checkIn, setCheckIn] = useState(initialCheckIn); // State untuk Datang
+  const [checkOut, setCheckOut] = useState(initialCheckOut); // State untuk Pulang
+  const [qrIn, setQrIn] = useState(false); // State independen untuk Masuk QR
+  const [qrOut, setQrOut] = useState(false); // State independen untuk Keluar QR
+  const checkOutButtonRef = useRef<HTMLButtonElement>(null); // Ref untuk tombol Pulang
+  const qrOutButtonRef = useRef<HTMLButtonElement>(null); // Ref untuk tombol Keluar QR
+
+  // Sinkronkan state checkIn dan checkOut dengan props jika props berubah
+  useEffect(() => {
+    setCheckIn(initialCheckIn);
+    setCheckOut(initialCheckOut);
+  }, [initialCheckIn, initialCheckOut]);
 
   const handleActionQrin = useCallback(
     async (qrCodeId: string) => {
       try {
         const locationData = await getLocation();
-        if (!locationData) return;
+        if (!locationData) {
+          toast.error("Gagal mendapatkan lokasi.");
+          return;
+        }
 
         await Qrin({
           qr_code_id: qrCodeId,
@@ -59,19 +75,27 @@ export const Actions = ({ checkIn, checkOut, leave, roleUser }: Props) => {
           longitude: locationData.longitude,
         });
 
+        setQrIn(true); // Perbarui status Masuk QR
         toast.success("Berhasil Check-in dengan QR");
+        // Fokus ke tombol Keluar QR jika tersedia
+        if (qrOutButtonRef.current && !qrOut && roleUser?.trim().toLowerCase() === "teacher") {
+          qrOutButtonRef.current.focus();
+        }
       } catch {
-        toast.error("Terjadi kesalahan saat check-in.");
+        toast.error("Terjadi kesalahan saat check-in dengan QR.");
       }
     },
-    [getLocation, Qrin]
+    [getLocation, Qrin, roleUser, qrOut]
   );
 
   const handleActionQrout = useCallback(
     async (qrCodeId: string) => {
       try {
         const locationData = await getLocation();
-        if (!locationData) return;
+        if (!locationData) {
+          toast.error("Gagal mendapatkan lokasi.");
+          return;
+        }
 
         await Qrout({
           qr_code_id: qrCodeId,
@@ -79,9 +103,10 @@ export const Actions = ({ checkIn, checkOut, leave, roleUser }: Props) => {
           longitude: locationData.longitude,
         });
 
+        setQrOut(true); // Perbarui status Keluar QR
         toast.success("Berhasil Check-out dengan QR");
       } catch {
-        toast.error("Terjadi kesalahan saat check-out.");
+        toast.error("Terjadi kesalahan saat check-out dengan QR.");
       }
     },
     [getLocation, Qrout]
@@ -115,56 +140,69 @@ export const Actions = ({ checkIn, checkOut, leave, roleUser }: Props) => {
     [scanMode, handleActionQrin, handleActionQrout]
   );
 
-useEffect(() => {
-  if (qrScannerOpen) {
-    const scanner = new Html5QrcodeScanner(
-      "qr-scanner", 
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-      },
-      false // Pass `false` here to indicate we are not using `useWasm` mode
-    );
+  useEffect(() => {
+    if (qrScannerOpen) {
+      const scanner = new Html5QrcodeScanner(
+        "qr-scanner",
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        false
+      );
 
-    // Now we can use `render` for success and error handling
-    scanner.render(
-      (decodedText) => {
-        handleScan({ text: decodedText });
-      },
-      () => {
-        console.warn("QR Scan Error");
-      }
-    );
+      scanner.render(
+        (decodedText) => {
+          handleScan({ text: decodedText });
+        },
+        () => {
+          console.warn("QR Scan Error");
+        }
+      );
 
-    return () => {
-      scanner.clear().catch(() => {});
-    };
-  }
-}, [qrScannerOpen, handleScan]); // Ensure handleScan is included in the dependencies.
-
+      return () => {
+        scanner.clear().catch(() => {});
+      };
+    }
+  }, [qrScannerOpen, handleScan]);
 
   const handleAction = async (actionType: "checkin" | "checkout") => {
     try {
       const locationData = await getLocation();
-      if (!locationData) return;
+      if (!locationData) {
+        toast.error("Gagal mendapatkan lokasi.");
+        return;
+      }
 
       if (actionType === "checkin") {
         await In({
           latitude: locationData.latitude,
           longitude: locationData.longitude,
         });
+        setCheckIn(true); // Perbarui status Datang
         toast.success("Berhasil Check-in");
+        // Fokus ke tombol Pulang jika tersedia
+        if (checkOutButtonRef.current && !checkOut) {
+          checkOutButtonRef.current.focus();
+        }
       } else {
         await Out({
           latitude: locationData.latitude,
           longitude: locationData.longitude,
         });
+        setCheckOut(true); // Perbarui status Pulang
         toast.success("Berhasil Check-out");
       }
     } catch {
       toast.error("Terjadi kesalahan saat memproses aksi.");
     }
   };
+
+  // Logika untuk menentukan status disabled
+  const isCheckInDisabled = checkIn || checkOut || leave === "accepted" || leave === "pending";
+  const isCheckOutDisabled = !checkIn || checkOut || leave === "accepted" || leave === "pending";
+  const isQrInDisabled = qrIn || qrOut || leave === "accepted" || leave === "pending";
+  const isQrOutDisabled = !qrIn || qrOut || leave === "accepted" || leave === "pending";
 
   return (
     <>
@@ -174,22 +212,16 @@ useEffect(() => {
             onPress={() => handleAction("checkin")}
             color="primary"
             {...defaultStyle}
-            isDisabled={
-              checkIn || checkOut || leave === "accepted" || leave === "pending"
-            }
+            isDisabled={isCheckInDisabled}
           >
             {loadIn ? "Memproses..." : "Datang"}
           </Button>
           <Button
+            ref={checkOutButtonRef}
             onPress={() => handleAction("checkout")}
             color="danger"
             {...defaultStyle}
-            isDisabled={
-              !checkIn ||
-              checkOut ||
-              leave === "accepted" ||
-              leave === "pending"
-            }
+            isDisabled={isCheckOutDisabled}
           >
             {loadOut ? "Memproses..." : "Pulang"}
           </Button>
@@ -207,29 +239,20 @@ useEffect(() => {
                 setScanMode("qrin");
                 setQrScannerOpen(true);
               }}
-              isDisabled={
-                checkIn ||
-                checkOut ||
-                leave === "accepted" ||
-                leave === "pending"
-              }
+              isDisabled={isQrInDisabled}
             >
-              {loadQrin ? "Memproses..." : "Masuk QR."}
+              {loadQrin ? "Memproses..." : "Masuk QR"}
             </Button>
 
             <Button
+              ref={qrOutButtonRef}
               color="secondary"
               {...defaultStyle}
               onPress={() => {
                 setScanMode("qrout");
                 setQrScannerOpen(true);
               }}
-              isDisabled={
-                !checkIn ||
-                checkOut ||
-                leave === "accepted" ||
-                leave === "pending"
-              }
+              isDisabled={isQrOutDisabled}
             >
               {loadQrout ? "Memproses..." : "Keluar QR"}
             </Button>

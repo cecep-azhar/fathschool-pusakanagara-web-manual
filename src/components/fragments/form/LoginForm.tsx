@@ -32,7 +32,7 @@ export const LoginForm: React.FC = () => {
       {/* Form */}
       <div className="flex h-full w-full py-8 items-center justify-center">
         <div className="flex w-full max-w-sm flex-col gap-4">
-          <HeadlineForm title="Selamat Datang" desc="Log In untuk Absensi Sekolah SMK Negeri 1 Kawali" />
+          <HeadlineForm title="Selamat Datang" desc="Log In untuk Absensi Sekolah SMK Negeri 1 Pusaka Nagara" />
 
           <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
             <Input

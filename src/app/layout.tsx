@@ -8,10 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SMKN 1 Kawali",
-  description: "SMKN 1 Kawali adalah sekolah menengah kejuruan unggulan yang berfokus pada pendidikan berkualitas dan pengembangan keterampilan siswa.",
+  title: "SMKN 1 Pusaka Nagara",
+  description: "SMKN 1 Pusak Nagara adalah sekolah menengah kejuruan unggulan yang berfokus pada pendidikan berkualitas dan pengembangan keterampilan siswa.",
   keywords: [
-    "SMKN 1 Kawali",
+    "SMKN 1 Pusaka Nagara",
     "Sekolah Menengah Kejuruan",
     "Pendidikan Kejuruan",
     "Kawali",
@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     "SMK Unggulan",
   ],
   openGraph: {
-    title: "SMKN 1 Kawali - Sekolah Menengah Kejuruan Unggulan",
+    title: "SMKN 1 Pusaka Nagara - Sekolah Menengah Kejuruan Unggulan",
     description:
-      "Selamat datang di SMKN 1 Kawali, tempat belajar dan berkembang menuju masa depan yang cerah.",
+      "Selamat datang di SMKN 1 Pusaka Nagara, tempat belajar dan berkembang menuju masa depan yang cerah.",
     url: "https://smkn1kawali.sch.id",
-    siteName: "SMKN 1 Kawali",
+    siteName: "SMKN 1 Pusaka Nagara",
     type: "website",
   },
   alternates: {

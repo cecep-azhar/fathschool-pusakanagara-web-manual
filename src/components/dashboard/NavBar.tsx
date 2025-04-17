@@ -44,7 +44,7 @@ export const NavBar: React.FC = (): React.ReactElement => {
             alt="logo"
             className="max-h-8 max-w-8 md:max-w-12 md:max-h-12"
           />
-          <h5 className="hidden sm:block">SMKN 1 Kawali</h5>
+          <h5 className="hidden sm:block">SMKN 1 Pusaka Nagara</h5>
         </NavbarBrand>
 
         <NavbarContent justify="end">

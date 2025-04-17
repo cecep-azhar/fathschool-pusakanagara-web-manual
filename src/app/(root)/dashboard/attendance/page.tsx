@@ -95,7 +95,7 @@ export default function Attendance(): React.ReactElement {
         greeting={{
           role: user?.role ?? "Admin",
           nameUser: capitalizeWords(user?.name ?? "User"),
-          description: dataSettings?.data.data.mobile_settings.conclusion_apps,
+          description: dataSettings?.data.data?.mobile_settings.conclusion_apps,
         }}
       />
 
